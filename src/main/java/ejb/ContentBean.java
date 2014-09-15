@@ -79,15 +79,15 @@ public class ContentBean implements ContentBeanRemote {
     @Override
     public boolean saveSongMetadata(Song song, Long userId) {
 
-        boolean res = false;
+        boolean result = false;
 
-        UserEntity user = new UserEntity(); //TODO not correct!
-        user.setId(userId);
+        UserManager userManager = new UserManager();
+        UserEntity user = userManager.getEntityById(UserEntity.class, userId);
 
-        // get song by id
         SongManager songManager = new SongManager();
         logger.info("pass1" + song + " " + song.getCloudId() + " " + song.getFileName());
-        SongEntity songEntity = songManager.getSongByHash(user, song.getCloudId(), song.getFileName());
+        SongEntity songEntity = songManager.getSongByHash(user.getId(), song.getCloudId(), song.getFileId());
+        userManager.finalize();
 
         if (songEntity == null) {
             // songEntity is empty, create new with metadata
@@ -97,16 +97,16 @@ public class ContentBean implements ContentBeanRemote {
             songEntity.setFileName(song.getFileName());
             songEntity.setUser(user);
             songEntity = setMetadata(songEntity, song);
-            res = songManager.addSong(songEntity);
+            result = songManager.addSong(songEntity);
         } else {
             // update metadata
             songEntity = setMetadata(songEntity, song);
-            res = songManager.updateSong(songEntity);
+            result = songManager.updateSong(songEntity);
         }
 
         songManager.finalize();
 
-        return res;
+        return result;
     }
 
     @Override
@@ -156,8 +156,10 @@ public class ContentBean implements ContentBeanRemote {
         fields.put("user_id", userId);
         List<PlayListEntity> entities = playListManager.getEntitiesByFields(fields);
         List<PlayList> playLists = new ArrayList<PlayList>();
-        for(PlayListEntity entity : entities){
-            playLists.add(new PlayList(entity));
+        if(entities != null){
+            for(PlayListEntity entity : entities){
+                playLists.add(new PlayList(entity));
+            }
         }
         return playLists;
     }
@@ -252,8 +254,6 @@ public class ContentBean implements ContentBeanRemote {
             songEntity.setFileId((String) fileIds.get(i));
             songEntity.setCloudId((Long) cloudIds.get(i));
             songManager.addEntity(songEntity);
-            //TODO logger
-            System.out.println("id=" + songEntity.getId());
             songs.add(songEntity);
         }
 

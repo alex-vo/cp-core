@@ -44,6 +44,7 @@ public class SongEntity {
     private String metadataGenre;
     private int metadataLengthSeconds;
     private Set<PlayListEntity> playLists = new HashSet<PlayListEntity>(0);
+    //TODO has metadata?
 
     private UserEntity user;
 
