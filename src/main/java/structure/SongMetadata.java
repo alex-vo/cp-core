@@ -1,6 +1,7 @@
 package structure;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import persistence.SongEntity;
 
 import java.io.Serializable;
 
@@ -23,13 +24,13 @@ public class SongMetadata implements Serializable{
 
     public SongMetadata(){}
 
-    public SongMetadata(String title, String artist, String album, long length, String year, String genre) {
-        this.title = title;
-        this.album = album;
-        this.artist = artist;
-        this.year = year;
-        this.genre = genre;
-        this.lengthSeconds = length;
+    public SongMetadata(SongEntity songEntity) {
+        this.title = songEntity.getMetadataTitle();
+        this.album = songEntity.getMetadataAlbum();
+        this.artist = songEntity.getMetadataArtist();
+        this.year = songEntity.getMetadataYear();
+        this.genre = songEntity.getMetadataGenre();
+        this.lengthSeconds = songEntity.getMetadataLengthSeconds();
     }
 
     public String getTitle() {

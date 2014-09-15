@@ -37,10 +37,8 @@ public class Song implements Serializable {
         this.fileName = entity.getFileName();
         this.cloudId = entity.getCloudId();
         this.fileId = entity.getFileId();
-        //TODO maybe not needed
-        SongMetadata metadata = new SongMetadata(entity.getMetadataTitle(), entity.getMetadataArtist(),
-                entity.getMetadataAlbum(), entity.getMetadataLengthSeconds(),
-                entity.getMetadataYear(), entity.getMetadataGenre());
+
+        SongMetadata metadata = new SongMetadata(entity);
         this.metadata = metadata;
     }
 

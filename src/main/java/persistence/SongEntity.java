@@ -2,15 +2,19 @@ package persistence;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -39,6 +43,7 @@ public class SongEntity {
     private String metadataYear;
     private String metadataGenre;
     private int metadataLengthSeconds;
+    private Set<PlayListEntity> playLists = new HashSet<PlayListEntity>(0);
 
     private UserEntity user;
 
@@ -162,6 +167,15 @@ public class SongEntity {
 
     public void setUser(UserEntity user){
         this.user = user;
+    }
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "songs", cascade = CascadeType.ALL)
+    public Set<PlayListEntity> getPlayLists() {
+        return playLists;
+    }
+
+    public void setPlayLists(Set<PlayListEntity> playLists) {
+        this.playLists = playLists;
     }
 
     @Override

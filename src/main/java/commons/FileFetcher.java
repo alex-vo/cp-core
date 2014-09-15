@@ -12,7 +12,6 @@ import java.util.List;
  * Time: 19:22
  * To change this template use File | Settings | File Templates.
  */
-//TODO: refactor
 public abstract class FileFetcher implements Runnable{
 
     public final static List<String> REQUIRED_FILE_TYPES = Arrays.asList("mp3", "wav", "ogg");

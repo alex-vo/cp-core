@@ -9,11 +9,9 @@ import commons.SongMetadataPopulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import persistence.PlayListEntity;
-import persistence.PlaylistSongEntity;
 import persistence.SongEntity;
 import persistence.UserEntity;
 import persistence.utility.PlayListManager;
-import persistence.utility.PlaylistSongManager;
 import persistence.utility.SongManager;
 import persistence.utility.UserManager;
 import structure.PlayList;
@@ -24,10 +22,11 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -113,22 +112,13 @@ public class ContentBean implements ContentBeanRemote {
     @Override
     public long addPlayList(Long userId, PlayList playList) {
         long playListId = -1;
-
         UserManager userManager = new UserManager();
-        PlayListManager playListManager = new PlayListManager();
+
         UserEntity user = userManager.getUserById(userId);
         userManager.finalize();
 
-        PlayListEntity playListEntity = new PlayListEntity();
-        playListEntity.setName(playList.getName());
-        playListEntity.setUser(user);
-        playListEntity.setCreated(new Timestamp(System.currentTimeMillis()));
-        playListEntity.setUpdated(new Timestamp(System.currentTimeMillis()));
-        playListId = playListManager.addPlayList(playListEntity);
-        playListManager.finalize();
-
         SongManager songManager = new SongManager();
-        List<PlaylistSongEntity> playlistSongEntities = new ArrayList<PlaylistSongEntity>();
+        Set<SongEntity> songs = new HashSet<SongEntity>();
         if(playList.getSongs() != null){
             List<Object> fileIds = new ArrayList<Object>();
             List<Object> cloudIds = new ArrayList<Object>();
@@ -138,41 +128,23 @@ public class ContentBean implements ContentBeanRemote {
                 cloudIds.add(i, playList.getSongs().get(i).getCloudId());
             }
 
-            Map<String, List<Object>> fields = new HashMap<String, List<Object>>();
-            fields.put("file_id", fileIds);
-            fields.put("cloud_id", cloudIds);
-            List<SongEntity> songList = songManager.getEntitiesWithInClause(fields);
-
-            for(SongEntity songEntity : songList){
-                PlaylistSongEntity entity = new PlaylistSongEntity();
-                entity.setPlayListId(playListId);
-                entity.setSongId(songEntity.getId());
-                fileIds.remove(songEntity.getFileId());
-                cloudIds.remove(songEntity.getCloudId());
-                playlistSongEntities.add(entity);
-            }
-            for(int i = 0; i < fileIds.size(); i++){
-                SongEntity songEntity = new SongEntity();
-                songEntity.setUser(user);
-                songEntity.setFileId((String) fileIds.get(i));
-                songEntity.setCloudId((Long) cloudIds.get(i));
-                songManager.addEntity(songEntity);
-                System.out.println("id=" + songEntity.getId());
-
-                System.out.println("id=" + songEntity.getId());
-                PlaylistSongEntity entity = new PlaylistSongEntity();
-                entity.setPlayListId(playListId);
-                entity.setSongId(songEntity.getId());
-                playlistSongEntities.add(entity);
-            }
-            //TODO save entities
+            songs.addAll(addExistingSongs(fileIds, cloudIds, songManager));
+            songs.addAll(addNewSongs(fileIds, cloudIds, songManager, user));
         }
+
         songManager.finalize();
-        PlaylistSongManager manager = new PlaylistSongManager();
-        for(PlaylistSongEntity entity : playlistSongEntities){
-            manager.addEntity(entity);
-        }
-        manager.finalize();
+
+        PlayListManager playListManager = new PlayListManager();
+        PlayListEntity playListEntity = new PlayListEntity();
+
+        playListEntity.setName(playList.getName());
+        playListEntity.setUser(user);
+        playListEntity.setCreated(new Timestamp(System.currentTimeMillis()));
+        playListEntity.setUpdated(new Timestamp(System.currentTimeMillis()));
+        playListEntity.setSongs(songs);
+
+        playListId = playListManager.addPlayList(playListEntity);
+        playListManager.finalize();
 
         return playListId;
     }
@@ -198,7 +170,6 @@ public class ContentBean implements ContentBeanRemote {
 
         PlayList playList = new PlayList(playListId, playListEntity.getName());
         for(SongEntity songEntity : playListEntity.getSongs()){
-            //TODO why do we duplicate the code?
             playList.add(new Song(songEntity));
         }
         playListManager.finalize();
@@ -209,19 +180,10 @@ public class ContentBean implements ContentBeanRemote {
     @Override
     public boolean deletePlayList(Long playListId) {
         boolean result = false;
-        PlaylistSongManager playlistSongManager = new PlaylistSongManager();
-
-        Map<String, Object> fields = new HashMap<String, Object>();
-        fields.put("playlist_id", playListId);
-
-        if(playlistSongManager.deleteEntitiesByFields(fields)){
-            playlistSongManager.finalize();
-            PlayListManager playListManager = new PlayListManager();
-            if(playListManager.deleteEntityByIDs(Arrays.asList(playListId))){
-                playListManager.finalize();
-                result = true;
-            }
-        }
+        PlayListManager playListManager = new PlayListManager();
+        PlayListEntity entity = playListManager.getEntityById(PlayListEntity.class, playListId);
+        result = playListManager.deleteEntity(entity);
+        playListManager.finalize();
 
         return result;
     }
@@ -262,5 +224,39 @@ public class ContentBean implements ContentBeanRemote {
         }
 
         return files;
+    }
+
+    private Set<SongEntity> addExistingSongs(List<Object> fileIds, List<Object> cloudIds, SongManager songManager){
+        Set<SongEntity> songs = new HashSet<SongEntity>();
+        Map<String, List<Object>> fields = new HashMap<String, List<Object>>();
+        fields.put("file_id", fileIds);
+        fields.put("cloud_id", cloudIds);
+        List<SongEntity> songList = songManager.getEntitiesWithInClause(fields);
+
+        for(SongEntity songEntity : songList){
+            fileIds.remove(songEntity.getFileId());
+            cloudIds.remove(songEntity.getCloudId());
+            songs.add(songEntity);
+        }
+
+        return songs;
+    }
+
+    private Set<SongEntity> addNewSongs(List<Object> fileIds, List<Object> cloudIds,
+                                        SongManager songManager, UserEntity user){
+        Set<SongEntity> songs = new HashSet<SongEntity>();
+
+        for(int i = 0; i < fileIds.size(); i++){
+            SongEntity songEntity = new SongEntity();
+            songEntity.setUser(user);
+            songEntity.setFileId((String) fileIds.get(i));
+            songEntity.setCloudId((Long) cloudIds.get(i));
+            songManager.addEntity(songEntity);
+            //TODO logger
+            System.out.println("id=" + songEntity.getId());
+            songs.add(songEntity);
+        }
+
+        return songs;
     }
 }

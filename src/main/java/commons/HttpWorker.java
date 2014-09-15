@@ -44,9 +44,7 @@ public class HttpWorker {
             wr.flush();
             wr.close();
 
-            if(con.getResponseCode() == 401){
-                throw new UnauthorizedAccessException("401");
-            }else if(con.getResponseCode() < 200 || con.getResponseCode() >= 300){
+            if(!isStatusOk(con.getResponseCode())){
                 return null;
             }
 
@@ -73,9 +71,7 @@ public class HttpWorker {
         JSONObject object = null;
         try {
             HttpResponse response = client.execute(request);
-            if(response.getStatusLine().getStatusCode() == 401){
-                throw new UnauthorizedAccessException("401");
-            }else if(response.getStatusLine().getStatusCode() < 200 || response.getStatusLine().getStatusCode() >= 300){
+            if(!isStatusOk(response.getStatusLine().getStatusCode())){
                 return null;
             }
             BufferedReader rd = new BufferedReader(
@@ -94,5 +90,14 @@ public class HttpWorker {
             e.printStackTrace();
         }
         return object;
+    }
+
+    public static boolean isStatusOk(int statusCode){
+        if(statusCode == 401){
+            throw new UnauthorizedAccessException("401");
+        }else if(statusCode < 200 || statusCode >= 300){
+            return false;
+        }
+        return true;
     }
 }

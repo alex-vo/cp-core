@@ -12,6 +12,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -34,7 +35,7 @@ public class PlayListEntity {
     private String name;
     private Timestamp created;
     private Timestamp updated;
-    private Set<SongEntity> songs;
+    private Set<SongEntity> songs = new HashSet<SongEntity>(0);
 
     @Id
     @Column(name = "id")
@@ -84,7 +85,7 @@ public class PlayListEntity {
         this.updated = updated;
     }
 
-    @ManyToMany(cascade = {CascadeType.ALL})
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name="playlist_song",
             joinColumns={@JoinColumn(name="playlist_id")},
             inverseJoinColumns={@JoinColumn(name="song_id")})

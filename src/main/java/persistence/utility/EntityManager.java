@@ -118,6 +118,16 @@ public abstract class EntityManager<T> {
         return list;
     }
 
+    public boolean deleteEntity(final T entity){
+        boolean result = false;
+        return transactionWrapper.run(session, new AbstractExecutor() {
+            @Override
+            public void execute() {
+                session.delete(entity);
+            }
+        });
+    }
+
     public boolean deleteEntityByIDs(final List<Long> ids) {
 
         return transactionWrapper.run(session, new AbstractExecutor() {
