@@ -44,7 +44,7 @@ public class SongEntity {
     private String metadataGenre;
     private int metadataLengthSeconds;
     private Set<PlayListEntity> playLists = new HashSet<PlayListEntity>(0);
-    //TODO has metadata?
+    private Boolean hasMetadata;
 
     private UserEntity user;
 
@@ -177,6 +177,15 @@ public class SongEntity {
 
     public void setPlayLists(Set<PlayListEntity> playLists) {
         this.playLists = playLists;
+    }
+
+    @Column(name = "has_metadata", nullable=false, columnDefinition="BOOLEAN default false")
+    public Boolean getHasMetadata() {
+        return hasMetadata;
+    }
+
+    public void setHasMetadata(Boolean hasMetadata) {
+        this.hasMetadata = hasMetadata;
     }
 
     @Override

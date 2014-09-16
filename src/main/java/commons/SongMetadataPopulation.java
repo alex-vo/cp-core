@@ -32,7 +32,7 @@ public class SongMetadataPopulation {
 
             SongManager manager = new SongManager();
             SongEntity songEntity = manager.getSongByHash(user.getId(), song.getCloudId(), song.getFileId());
-            if (songEntity != null) {
+            if (songEntity != null && songEntity.getHasMetadata()) {
                 SongMetadata metadata = new SongMetadata(songEntity);
                 song.setMetadata(metadata);
             }

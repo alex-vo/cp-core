@@ -57,7 +57,6 @@ public class ContentBean implements ContentBeanRemote {
                 GDrive gDrive = new GDrive(user.getDriveAccessToken(), user.getDriveRefreshToken());
                 file = gDrive.getFileLink(fileId);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,6 +197,7 @@ public class ContentBean implements ContentBeanRemote {
             songEntity.setMetadataArtist(metadata.getArtist());
             songEntity.setMetadataGenre(metadata.getGenre());
             songEntity.setMetadataYear(metadata.getYear());
+            songEntity.setHasMetadata(true);
         }
         return songEntity;
     }
@@ -235,10 +235,12 @@ public class ContentBean implements ContentBeanRemote {
         fields.put("cloud_id", cloudIds);
         List<SongEntity> songList = songManager.getEntitiesWithInClause(fields);
 
-        for(SongEntity songEntity : songList){
-            fileIds.remove(songEntity.getFileId());
-            cloudIds.remove(songEntity.getCloudId());
-            songs.add(songEntity);
+        if(songList != null){
+            for(SongEntity songEntity : songList){
+                fileIds.remove(songEntity.getFileId());
+                cloudIds.remove(songEntity.getCloudId());
+                songs.add(songEntity);
+            }
         }
 
         return songs;
@@ -253,6 +255,7 @@ public class ContentBean implements ContentBeanRemote {
             songEntity.setUser(user);
             songEntity.setFileId((String) fileIds.get(i));
             songEntity.setCloudId((Long) cloudIds.get(i));
+            songEntity.setHasMetadata(false);
             songManager.addEntity(songEntity);
             songs.add(songEntity);
         }

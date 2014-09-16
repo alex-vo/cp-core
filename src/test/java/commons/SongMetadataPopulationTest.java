@@ -48,6 +48,7 @@ public class SongMetadataPopulationTest {
         song1.setFileName("MyJunitTest.mp3");
         song1.setFileSize(1111);
         song1.setMetadataTitle("JUnitTests");
+        song1.setHasMetadata(true);
         songManger.addSong(song1);
 
         logger.info("BeforeClass done");
@@ -70,7 +71,7 @@ public class SongMetadataPopulationTest {
 
             for (Song song : playList.getSongs()) {
                 if (song.getFileName().equals(song1.getFileName())) {
-                    logger.debug("song:" + song.getMetadata().getTitle());
+//                    logger.debug("song:" + song.getMetadata().getTitle());
                     assertTrue("Incorrect authors", song.getMetadata().getTitle().equals(song1.getMetadataTitle()));
                 } else {
                     logger.debug("line " + song.getMetadata());
