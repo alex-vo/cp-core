@@ -36,7 +36,7 @@ public class GDriveTest {
     public static void method() {
         try{
             UserManager manager = new UserManager();
-            UserEntity user = manager.getUserById(-1);
+            UserEntity user = manager.getUserById(2);
             gDrive = new GDrive(user.getDriveAccessToken(), user.getDriveRefreshToken());
             String newToken = gDrive.refreshToken(user.getDriveRefreshToken());
             gDrive.setAccessToken(newToken);
