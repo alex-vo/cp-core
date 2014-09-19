@@ -32,13 +32,13 @@ public class DriveFileFetcher extends FileFetcher{
             String driveRefreshToken = user.getDriveRefreshToken();
             if(driveAccessToken != null && driveRefreshToken != null){
                 gDrive = new GDrive(driveAccessToken, driveRefreshToken);
-                files = gDrive.getFileList(folderPath, REQUIRED_FILE_TYPES);
+                files = gDrive.getFileList(folderPath, REQUIRED_FILE_TYPES).getSongs();
             }
         } catch (UnauthorizedAccessException e) {
             if("401".equals(e.getMessage())){
                 gDrive.setAccessToken(gDrive.refreshToken(gDrive.getRefreshToken()));
                 try {
-                    files = gDrive.getFileList(folderPath, REQUIRED_FILE_TYPES);
+                    files = gDrive.getFileList(folderPath, REQUIRED_FILE_TYPES).getSongs();
                     user.setDriveAccessToken(gDrive.getAccessToken());
                     manager.updateUser(user);
                 } catch (Exception e1) {

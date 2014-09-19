@@ -42,13 +42,11 @@ public class UserManager extends EntityManager<UserEntity> {
 
     public Long addUser(final UserEntity user) {
         if(addEntity(user)){
-            // TODO: check
             return user.getId();
         }else{
             return null;
         }
     }
-
 
     public boolean deleteUsersByIDs(final List<Long> ids) {
         return deleteEntityByIDs(ids);

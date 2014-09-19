@@ -233,8 +233,7 @@
                                 <resource>
                                     <directory>target</directory>
                                     <includes>
-                                        <include>
-                                            cp-core-client.jar</include>
+                                        <include>cp-core-client.jar</include>
                                     </includes>
                                 </resource>
                             </resources>

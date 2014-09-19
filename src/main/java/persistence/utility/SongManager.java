@@ -3,7 +3,6 @@ package persistence.utility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import persistence.SongEntity;
-import persistence.UserEntity;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,11 +27,9 @@ public class SongManager extends EntityManager<SongEntity> {
         return getEntityById(SongEntity.class, id);
     }
 
-
     public boolean updateSong(SongEntity song) {
         return updateEntity(song);
     }
-
 
     public List<SongEntity> getSongsByFields(Map<String, Object> fields) {
         return getEntitiesByFields(fields);
@@ -42,18 +39,16 @@ public class SongManager extends EntityManager<SongEntity> {
         return addEntity(song);
     }
 
-
     public boolean deleteSongsByID(List<Long> ids) {
         return deleteEntityByIDs(ids);
     }
 
-
-    public SongEntity getSongByHash(UserEntity user, long cloudId, String fileName) {
+    public SongEntity getSongByHash(Long userId, long cloudId, String fileId) {
 
         Map<String, Object> fieldMap = new HashMap<String, Object>();
-        fieldMap.put("cloudId", cloudId);
-        fieldMap.put("fileName", fileName);
-        fieldMap.put("user", user);
+        fieldMap.put("cloud_id", cloudId);
+        fieldMap.put("file_id", fileId);
+        fieldMap.put("user_id", userId);
         List<SongEntity> list = getEntitiesByFields(fieldMap);
 
         SongEntity songEntity = null;

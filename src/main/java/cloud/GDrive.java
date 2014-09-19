@@ -70,7 +70,7 @@ public class GDrive extends OAuth2Communicator {
         }
 
 
-        Iterator<Song> i = files.iterator();
+        Iterator<Song> i = files.getSongs().iterator();
         while (i.hasNext()) {
             Song track = i.next();
             if ( !CloudFile.checkFileType(track.getFileName(), fileTypes) ) {

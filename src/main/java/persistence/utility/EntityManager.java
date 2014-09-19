@@ -91,6 +91,43 @@ public abstract class EntityManager<T> {
         return list;
     }
 
+    public List<T> getEntitiesWithInClause(Map<String, List<Object>> fields) {
+
+        List<T> list = null;
+        if (fields != null && fields.size() > 0) {
+
+            String queryString = "from " + table + " where";
+            String andSeparator = " ";
+            for (String key : fields.keySet()) {
+                queryString += andSeparator + key + " in (:" + key + ")";
+                andSeparator = " AND ";
+            }
+
+            Query query = session.createQuery(queryString);
+            for(Map.Entry<String, List<Object>> entry : fields.entrySet()){
+                query.setParameterList(entry.getKey(), entry.getValue());
+            }
+            list = query.list();
+            if (list.size() == 0) {
+                list = null;
+            }
+            //closeSession(session);
+            logger.debug("Search entities in " + table + " by fields, hql:" + query.getQueryString());
+        }
+
+        return list;
+    }
+
+    public boolean deleteEntity(final T entity){
+        boolean result = false;
+        return transactionWrapper.run(session, new AbstractExecutor() {
+            @Override
+            public void execute() {
+                session.delete(entity);
+            }
+        });
+    }
+
     public boolean deleteEntityByIDs(final List<Long> ids) {
 
         return transactionWrapper.run(session, new AbstractExecutor() {
@@ -114,6 +151,30 @@ public abstract class EntityManager<T> {
         });
     }
 
+    public boolean deleteEntitiesByFields(Map<String, Object> fields) {
+
+        boolean result = false;
+        if (fields != null && fields.size() > 0) {
+
+            String queryString = "delete " + table + " where";
+            String andSeparator = " ";
+            for (String key : fields.keySet()) {
+                queryString += andSeparator + key + "=:" + key;
+                andSeparator = " AND ";
+            }
+
+            final Query query = session.createQuery(queryString);
+            query.setProperties(fields);
+            result = transactionWrapper.run(session, new AbstractExecutor() {
+                @Override
+                public void execute() {
+                    query.executeUpdate();
+                }
+            });
+        }
+
+        return result;
+    }
 
     public boolean updateEntity(final T entity) {
 

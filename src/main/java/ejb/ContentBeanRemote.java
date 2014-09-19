@@ -4,6 +4,7 @@ import structure.PlayList;
 import structure.Song;
 
 import javax.ejb.Remote;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,5 +26,13 @@ public interface ContentBeanRemote {
     public PlayList getPlayList(Long userId);
 
     public boolean saveSongMetadata(Song song, Long userId);
+
+    public long addPlayList(Long userId, PlayList playList);
+
+    public List<PlayList> getPlayLists(Long userId);
+
+    public PlayList getPlayList(Long userId, Long playListId);
+
+    public boolean deletePlayList(Long playListId);
 
 }

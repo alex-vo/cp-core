@@ -25,7 +25,8 @@ public class HibernateUtil {
                     .addProperties(SystemProperty.getLocalProperties())
                     .addPackage("persistence")
                     .addAnnotatedClass(UserEntity.class)
-                    .addAnnotatedClass(SongEntity.class);
+                    .addAnnotatedClass(SongEntity.class)
+                    .addAnnotatedClass(PlayListEntity.class);
             sessionFactory = conf.buildSessionFactory();
 
         } catch (Throwable ex) {

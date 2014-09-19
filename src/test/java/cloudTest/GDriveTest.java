@@ -36,7 +36,7 @@ public class GDriveTest {
     public static void method() {
         try{
             UserManager manager = new UserManager();
-            UserEntity user = manager.getUserById(-1);
+            UserEntity user = manager.getUserById(2);
             gDrive = new GDrive(user.getDriveAccessToken(), user.getDriveRefreshToken());
             String newToken = gDrive.refreshToken(user.getDriveRefreshToken());
             gDrive.setAccessToken(newToken);
@@ -55,7 +55,7 @@ public class GDriveTest {
         List<String> fileTypes = new ArrayList<String>();
         fileTypes.add("mp3");
         try {
-            List<Song> songList = gDrive.getFileList("/", fileTypes);
+            List<Song> songList = gDrive.getFileList("/", fileTypes).getSongs();
             assertNotNull(songList);
             boolean isFilePresent = false;
             for(Song song : songList){
